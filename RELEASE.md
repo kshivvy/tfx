@@ -9,6 +9,8 @@
     temporary workaround to make retry work. We will introduce a more
     comprehensive solution for idempotent execution.
 *   Made evaluator output optional (while still recommended) for pusher.
+*   Removed Tuner from custom_components/ as it's supported under components/
+    now.
 
 ## Breaking changes
 
