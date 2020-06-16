@@ -210,7 +210,7 @@ class BaseExampleGenExecutorTest(tf.test.TestCase):
     example_gen = TestExampleGenExecutor()
     with self.assertRaisesRegexp(
         RuntimeError,
-        'Feature type `float_list` is not supported for partition.'):
+        'Only bytes_list and int64_list features are supported for partition.'):
       example_gen.Do({}, self._output_dict, self._exec_properties)
 
 
