@@ -2,8 +2,6 @@
 
 ## Major Features and Improvements
 
-* Added support for training-serving skew detection in the ExampleValidator.
-
 ## Bug fixes and other changes
 
 ## Breaking changes
