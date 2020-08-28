@@ -169,6 +169,12 @@ class FusedComponentSpec(ComponentSpec):
   OUTPUTS = {}
 
 
+class FusedComponentSpec(ComponentSpec):
+  PARAMETERS = {}
+  INPUTS = {}
+  OUTPUTS = {}
+
+
 class InfraValidatorSpec(ComponentSpec):
   """InfraValidator component spec."""
 

@@ -25,10 +25,10 @@ import os
 from typing import List, Optional, Text
 
 from absl import logging
-from tfx.components.base import base_node
-from tfx.orchestration import data_types
 
 from ml_metadata.proto import metadata_store_pb2
+from tfx.components.base import base_node
+from tfx.orchestration import data_types
 
 # Argo's workflow name cannot exceed 63 chars:
 # see https://github.com/argoproj/argo/issues/1324.
@@ -58,18 +58,19 @@ class Pipeline(object):
   """Logical TFX pipeline object.
 
   Attributes:
-    pipeline_args: Kwargs used to create real pipeline implementation. This is
+    pipeline_args: kwargs used to create real pipeline implementation. This is
       forwarded to PipelineRunners instead of consumed in this class. This
       should include:
       - pipeline_name: Required. The unique name of this pipeline.
       - pipeline_root: Required. The root of the pipeline outputs.
-    components: Logical components of this pipeline.
+    components: logical components of this pipeline.
     pipeline_info: An instance of data_types.PipelineInfo that contains basic
       properties of the pipeline.
-    enable_cache: Whether or not cache is enabled for this run.
-    metadata_connection_config: The config to connect to ML metadata.
-    beam_pipeline_args: Pipeline arguments for Beam powered Components.
-    additional_pipeline_args: Other pipeline args.
+    enable_cache: whether or not cache is enabled for this run.
+    metadata_connection_config: the config to connect to ML metadata.
+    beam_pipeline_args: Beam pipeline args for beam jobs within executor.
+      Executor will use beam DirectRunner as Default.
+    additional_pipeline_args: other pipeline args.
   """
 
   def __init__(self,
@@ -84,15 +85,16 @@ class Pipeline(object):
     """Initialize pipeline.
 
     Args:
-      pipeline_name: Name of the pipeline;
-      pipeline_root: Path to root directory of the pipeline;
-      metadata_connection_config: The config to connect to ML metadata.
-      components: A list of components in the pipeline (optional only for
+      pipeline_name: name of the pipeline;
+      pipeline_root: path to root directory of the pipeline;
+      metadata_connection_config: the config to connect to ML metadata.
+      components: a list of components in the pipeline (optional only for
         backward compatible purpose to be used with deprecated
         PipelineDecorator).
-      enable_cache: Whether or not cache is enabled for this run.
-      beam_pipeline_args: Pipeline arguments for Beam powered Components.
-      **kwargs: Additional kwargs forwarded as pipeline args.
+      enable_cache: whether or not cache is enabled for this run.
+      beam_pipeline_args: Beam pipeline args for beam jobs within executor.
+        Executor will use beam DirectRunner as Default.
+      **kwargs: additional kwargs forwarded as pipeline args.
     """
     if len(pipeline_name) > MAX_PIPELINE_NAME_LENGTH:
       raise ValueError('pipeline name %s exceeds maximum allowed lenght' %
@@ -127,13 +129,14 @@ class Pipeline(object):
       with open(pipeline_args_path, 'w') as f:
         json.dump(pipeline_args, f)
 
-    self.connect_nodes = True
+    # TODO(kshivvy): please remove this.
+    self.connect_nodes = True  # pylint: disable=g-missing-from-attributes
     # Calls property setter.
     self.components = components or []
 
   @property
   def components(self):
-    """A deterministic list of logical components that are deduped and topologically sorted."""
+    """A list of logical components that are deduped and topological sorted."""
     return self._components
 
   @components.setter
@@ -161,6 +164,7 @@ class Pipeline(object):
           artifact.pipeline_name = self.pipeline_info.pipeline_name
           artifact.producer_component = component.id
 
+    # TODO(kshivvy): please remove this.
     # Connects nodes based on producer map.
     if self.connect_nodes:
       for component in deduped_components:
@@ -177,7 +181,6 @@ class Pipeline(object):
     # Sorts component in topological order.
     while current_layer:
       next_layer = []
-      # Within each layer, components are sorted according to component ids.
       for component in sorted(current_layer, key=lambda c: c.id):
         self._components.append(component)
         visited.add(component)
