@@ -144,6 +144,12 @@ class FileBasedExampleGenSpec(ComponentSpec):
   }
 
 
+class FusedComponentSpec(ComponentSpec):
+  PARAMETERS = {}
+  INPUTS = {}
+  OUTPUTS = {}
+
+
 class InfraValidatorSpec(ComponentSpec):
   """InfraValidator component spec."""
 

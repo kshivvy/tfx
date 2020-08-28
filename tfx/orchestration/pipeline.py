@@ -129,6 +129,8 @@ class Pipeline(object):
       with open(pipeline_args_path, 'w') as f:
         json.dump(pipeline_args, f)
 
+    # TODO(kshivvy): please remove this.
+    self.connect_nodes = True  # pylint: disable=g-missing-from-attributes
     # Calls property setter.
     self.components = components or []
 
@@ -162,12 +164,14 @@ class Pipeline(object):
           artifact.pipeline_name = self.pipeline_info.pipeline_name
           artifact.producer_component = component.id
 
+    # TODO(kshivvy): please remove this.
     # Connects nodes based on producer map.
-    for component in deduped_components:
-      for i in component.inputs.values():
-        if producer_map.get(i):
-          component.add_upstream_node(producer_map[i])
-          producer_map[i].add_downstream_node(component)
+    if self.connect_nodes:
+      for component in deduped_components:
+        for i in component.inputs.values():
+          if producer_map.get(i):
+            component.add_upstream_node(producer_map[i])
+            producer_map[i].add_downstream_node(component)
 
     self._components = []
     visited = set()
